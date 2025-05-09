@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: index-html
+  namespace: sjhong
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html>
+    <head><title>Hello</title></head>
+    <body><h1>Hello there!</h1></body>
+    </html>
