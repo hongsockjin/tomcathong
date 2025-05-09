@@ -1,0 +1,42 @@
+name: Deploy ConfigMap to Git
+ 
+on:
+  push:
+    paths:
+      - 'application/index.html'
+    branches:
+      - main
+ 
+jobs:
+  generate-configmap:
+    runs-on: ubuntu-latest
+ 
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+ 
+      - name: Generate ConfigMap YAML from HTML
+        run: |
+          mkdir -p manifests/tomcat
+          {
+            echo "apiVersion: v1"
+            echo "kind: ConfigMap"
+            echo "metadata:"
+            echo "  name: index-html"
+            echo "  namespace: sjhong"
+            echo "data:"
+            echo "  index.html: |"
+            sed 's/^/    /' application/index.html
+          } > manifests/tomcat/index-configmap.yaml
+ 
+      - name: Commit and Push if Changed
+        run: |
+          git config user.name "sjhong-github-actions"
+          git config user.email "sjhong-actions@github.com"
+          git add manifests/tomcat/index-configmap.yaml
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Auto-update ConfigMap from index.html"
+            git push
+          fi
